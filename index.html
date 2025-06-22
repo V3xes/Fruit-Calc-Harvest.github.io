@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>🍎 Fruit Cost Calculator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="main-container">
+    <div class="window">
+      <div class="header">🍎 Fruit Cost Calculator</div>
+      <div class="section">
+        <label for="itemSelect">🔍 Select an Item:</label>
+        <select id="itemSelect"></select>
+      </div>
+    </div>
+
+    <div class="window">
+      <div class="header">🌿 Available Fruits</div>
+      <div id="fruitList"></div>
+    </div>
+
+    <div class="window">
+      <div class="header">⚖️ Calculation</div>
+      <button onclick="calculate()">⏱️ Calculate</button>
+      <div id="output"></div>
+    </div>
+
+    <div class="window">
+      <div class="header" style="opacity: 0; pointer-events: none;">📃 INVIS HEADER</div>
+      <label for="invFruitSelect">🧲 Select Single Fruit for Full Inv:</label>
+      <select id="invFruitSelect"></select>
+      <button onclick="calcFullInv()">📊 Full Inventory Calc</button>
+      <div id="invResult"></div>
+      <p style="font-size: 8px; color: #fdf2c3; margin-top: 10px;">⚠️ Assumes 200-slot inventory.<br>🐝 Pack Bee & 🍎 Fav'd fruits may break results slightly!
+      </p>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+  <script>
+    function calcFullInv() {
+      const selected = document.getElementById("invFruitSelect").value;
+      const fruit = fruits.find(f => f.name === selected);
+      const outputBox = document.getElementById("invResult");
+      const itemCost = parseInt(document.getElementById("itemSelect").value);
+
+      if (!fruit) {
+        outputBox.innerText = "⚠️ Select a valid fruit.";
+        return;
+      }
+
+      let totalGain = 0;
+      let temp = itemCost;
+      const selectedFruits = Array.from(document.querySelectorAll(".fruit-item.selected"))
+        .map(el => ({ name: el.dataset.name, gain: parseInt(el.dataset.gain) }))
+        .sort((a, b) => b.gain - a.gain);
+
+      for (let f of selectedFruits) {
+        let count = Math.floor(temp / f.gain);
+        if (f.name === fruit.name) {
+          totalGain += count;
+        }
+        temp -= count * f.gain;
+      }
+
+      const invs = Math.ceil(totalGain / 200);
+      outputBox.innerHTML = `🚚 You'll need <strong>${invs}</strong> full 200-slot inventories to store <strong>${totalGain}</strong> ${fruit.name}.`;
+    }
+
+    window.onload = function () {
+      const itemSelect = document.getElementById("itemSelect");
+      const fruitList = document.getElementById("fruitList");
+      const invFruitSelect = document.getElementById("invFruitSelect");
+
+      items.forEach(item => {
+        const option = document.createElement("option");
+        option.value = item.cost;
+        option.textContent = `⚡ ${item.name} (${item.cost}¢)`;
+        itemSelect.appendChild(option);
+      });
+
+      fruits.forEach(fruit => {
+        const div = document.createElement("div");
+        div.className = "fruit-item";
+        div.dataset.name = fruit.name;
+        div.dataset.gain = fruit.gain;
+        div.innerHTML = `<span>🍎 ${fruit.name}</span><span>⬆️ Gain: ${fruit.gain}</span>`;
+        div.onclick = () => div.classList.toggle("selected");
+        div.onmouseenter = () => hoverSound.play();
+        fruitList.appendChild(div);
+
+        const invOption = document.createElement("option");
+        invOption.value = fruit.name;
+        invOption.textContent = `🍎 ${fruit.name}`;
+        invFruitSelect.appendChild(invOption);
+      });
+    }
+  </script>
+</body>
+</html>
