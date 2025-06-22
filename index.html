@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Fruit Cost Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #121212;
+      color: #fff;
+    }
+    h1, h2 {
+      text-align: center;
+    }
+    select, button {
+      padding: 10px;
+      margin: 10px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: none;
+    }
+    #itemSelect, #fruitList, button {
+      background-color: #1e1e1e;
+      color: #fff;
+    }
+    #fruitList button {
+      display: inline-block;
+      margin: 5px;
+      background-color: #2e2e2e;
+      border: 1px solid #444;
+      border-radius: 8px;
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+    #fruitList button.selected {
+      background-color: #4CAF50;
+      color: #fff;
+      border-color: #4CAF50;
+    }
+    #output {
+      margin-top: 20px;
+      font-size: 18px;
+      background: #1e1e1e;
+      padding: 20px;
+      border-radius: 8px;
+      border: 1px solid #444;
+    }
+  </style>
+</head>
+<body>
+  <h1>Fruit Cost Calculator</h1>
+  <h2>Select an Item</h2>
+  <select id="itemSelect"></select>
+
+  <h2>Click Fruits to Select/Deselect</h2>
+  <div id="fruitList"></div>
+
+  <button onclick="calculate()">Calculate</button>
+
+  <div id="output"></div>
+
+  <script>
+    const items = [
+  { name: "Flower Seed Pack", cost: 2000 },
+  { name: "Watering Can", cost: 10 },
+  { name: "Honey", cost: 50 },
+  { name: "Basic Sprinkler", cost: 100 },
+  { name: "Fun Crate", cost: 120 },
+  { name: "Sheckles", cost: 200 },
+  { name: "Recall Wrench", cost: 250 },
+  { name: "Cleaning Spray", cost: 300 },
+  { name: "Lightning Rod", cost: 400 },
+  { name: "Normal Seed Pack", cost: 600 },
+  { name: "Cacao", cost: 800 },
+  { name: "Pepper", cost: 1000 },
+  { name: "Rare Egg", cost: 1400 },
+  { name: "Honey Sprinkler", cost: 1800 },
+  { name: "Summer Seed Pack", cost: 2000 },
+  { name: "Twilight Crate", cost: 2400 },
+  { name: "Bloodmoon Crate", cost: 3400 },
+  { name: "Celestiberry", cost: 3600 },
+  { name: "Moon Melon", cost: 3600 },
+  { name: "Green Apple", cost: 4000 },
+  { name: "Night Staff", cost: 4000 },
+  { name: "Night Egg", cost: 4400 },
+  { name: "Nectarine", cost: 4400 },
+  { name: "Reclaimer", cost: 5000 },
+  { name: "Bee Crate", cost: 5000 },
+  { name: "Night Seed Pack", cost: 5000 },
+  { name: "Blood Banana", cost: 5600 },
+  { name: "Chocolate Carrot", cost: 6000 },
+  { name: "Blood Kiwi", cost: 6000 },
+  { name: "Bee Egg", cost: 6000 },
+  { name: "Avocado", cost: 7000 },
+  { name: "Moon Mango", cost: 7000 },
+  { name: "Summer Fun Crate", cost: 8000 },
+  { name: "Rare Summer Egg", cost: 8000 },
+  { name: "Chocolate Sprinkler", cost: 8000 },
+  { name: "Moon Cat", cost: 11000 },
+  { name: "Easter Egg", cost: 12000 },
+  { name: "Ember Lily", cost: 14000 },
+];
+
+const fruits = [
+  { name: "Carrot", gain: 1 },
+  { name: "Strawberry", gain: 1 },
+  { name: "Blueberry", gain: 2 },
+  { name: "Tomato", gain: 3 },
+  { name: "Cauliflower", gain: 3 },
+  { name: "Watermelon", gain: 4 },
+  { name: "Banana", gain: 4 },
+  { name: "Avocado", gain: 4 },
+  { name: "Green Apple", gain: 4 },
+  { name: "Pineapple", gain: 5 },
+  { name: "Kiwi", gain: 5 },
+  { name: "Prickly Pear", gain: 5 },
+  { name: "Bell Pepper", gain: 5 },
+  { name: "Loquat", gain: 6 },
+  { name: "Feijoa", gain: 6 },
+  { name: "Sugar Apple", gain: 7 },
+]; // omitted for brevity (same as original)
+
+    const itemSelect = document.getElementById("itemSelect");
+    const fruitList = document.getElementById("fruitList");
+    const output = document.getElementById("output");
+
+    items.forEach(item => {
+      const option = document.createElement("option");
+      option.value = item.cost;
+      option.textContent = `${item.name} (${item.cost})`;
+      itemSelect.appendChild(option);
+    });
+
+    fruits.forEach((fruit, index) => {
+      const btn = document.createElement("button");
+      btn.textContent = `${fruit.name} (Gain: ${fruit.gain})`;
+      btn.dataset.gain = fruit.gain;
+      btn.dataset.name = fruit.name;
+      btn.onclick = () => btn.classList.toggle("selected");
+      fruitList.appendChild(btn);
+    });
+
+    function calculate() {
+      const cost = parseInt(itemSelect.value);
+      const selectedButtons = Array.from(document.querySelectorAll("#fruitList button.selected"));
+
+      if (selectedButtons.length === 0) {
+        output.innerHTML = "Please select at least one fruit.";
+        return;
+      }
+
+      // Get selected fruits sorted by gain descending
+      const selectedFruits = selectedButtons
+        .map(btn => ({ name: btn.dataset.name, gain: parseInt(btn.dataset.gain) }))
+        .sort((a, b) => b.gain - a.gain);
+
+      let remaining = cost;
+      let usage = {};
+
+      for (let fruit of selectedFruits) {
+        let count = Math.floor(remaining / fruit.gain);
+        if (count > 0) {
+          usage[fruit.name] = count;
+          remaining -= count * fruit.gain;
+        }
+      }
+
+      // Try to round off remaining using smallest fruit
+      if (remaining > 0 && selectedFruits.length > 0) {
+        const smallest = selectedFruits[selectedFruits.length - 1];
+        let extra = Math.ceil(remaining / smallest.gain);
+        usage[smallest.name] = (usage[smallest.name] || 0) + extra;
+        remaining = 0;
+      }
+
+      let result = `<strong>To reach ${cost} points, use:</strong><br><ul>`;
+      for (let fruit in usage) {
+        result += `<li>${fruit}: ${usage[fruit]}</li>`;
+      }
+      result += `</ul>`;
+
+      output.innerHTML = result;
+    }
+  </script>
+</body>
+</html>
