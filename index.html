@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Fruit Cost Calculator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <div class="main-container">
+    <div class="window">
+      <div class="header">Fruit Cost Calculator</div>
+      <div class="section">
+        <label for="itemSelect">Select an Item:</label>
+        <select id="itemSelect"></select>
+      </div>
+    </div>
+
+    <div class="window">
+      <div class="header">Available Fruits</div>
+      <div id="fruitList"></div>
+    </div>
+
+    <div class="window">
+      <div class="header">Calculation</div>
+      <button onclick="calculate()">Calculate</button>
+      <div id="output"></div>
+    </div>
+  </div>
+
+  <audio id="clickSound" src="./assets/sound.mp3" preload="auto"></audio>
+
+  <script src="./script.js"></script>
+</body>
+</html>
